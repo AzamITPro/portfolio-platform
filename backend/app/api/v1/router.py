@@ -7,6 +7,7 @@ from app.api.v1.endpoints.admin_skills import router as admin_skills_router
 from app.api.v1.endpoints.admin_projects import router as admin_projects_router
 from app.api.v1.endpoints.admin_resume import router as admin_resume_router
 from app.api.v1.endpoints.admin_communication import router as admin_comm_router
+from app.api.v1.endpoints.admin_media import router as admin_media_router
 
 api_router = APIRouter()
 
@@ -22,6 +23,7 @@ api_router.include_router(admin_skills_router)
 api_router.include_router(admin_projects_router)
 api_router.include_router(admin_resume_router)
 api_router.include_router(admin_comm_router)
+api_router.include_router(admin_media_router)
 
 
 @api_router.get("/status", tags=["System Status"])
@@ -39,6 +41,7 @@ def api_v1_status():
                 "admin_projects",
                 "admin_resume",
                 "admin_communication",
+                "admin_media",
             ],
         },
     )
