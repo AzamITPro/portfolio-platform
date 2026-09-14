@@ -1,4 +1,5 @@
 import hashlib
+import html
 from typing import Optional, List
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -250,11 +251,17 @@ class PublicService:
     ) -> None:
         # Privacy protection: Hash IP address with SHA-256 before persisting
         ip_hash = hashlib.sha256(client_ip.encode("utf-8")).hexdigest()
+
+        # XSS Sanitization: Escape dangerous characters in user input
+        sanitized_name = html.escape(msg.name.strip())
+        sanitized_subject = html.escape(msg.subject.strip())
+        sanitized_message = html.escape(msg.message.strip())
+
         new_msg = ContactMessage(
-            name=msg.name.strip(),
+            name=sanitized_name,
             email=msg.email.strip().lower(),
-            subject=msg.subject.strip(),
-            message=msg.message.strip(),
+            subject=sanitized_subject,
+            message=sanitized_message,
             status="new",
             ip_hash=ip_hash,
             user_agent=user_agent[:500] if user_agent else None,
