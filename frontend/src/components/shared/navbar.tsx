@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -19,13 +22,20 @@ function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 export function Navbar() {
+  const pathname = usePathname();
+
+  // Hide public navbar on all admin portal routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const navLinks = [
-    { name: "About", href: "#about" },
-    { name: "Skills", href: "#skills" },
-    { name: "Projects", href: "#projects" },
-    { name: "Services", href: "#services" },
-    { name: "Journey", href: "#journey" },
-    { name: "Contact", href: "#contact" },
+    { name: "About", href: "/#about" },
+    { name: "Skills", href: "/#skills" },
+    { name: "Projects", href: "/#projects" },
+    { name: "Services", href: "/#services" },
+    { name: "Journey", href: "/#journey" },
+    { name: "Contact", href: "/#contact" },
   ];
 
   return (
@@ -47,13 +57,13 @@ export function Navbar() {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.name}
               href={link.href}
               className="transition-colors hover:text-white"
             >
               {link.name}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -70,11 +80,11 @@ export function Navbar() {
               <span className="hidden sm:inline">GitHub</span>
             </Button>
           </a>
-          <a href="#contact">
+          <Link href="/#contact">
             <Button size="sm" className="text-xs">
               Get in Touch
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </header>

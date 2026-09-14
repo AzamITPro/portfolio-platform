@@ -1,7 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
+
+  // Hide public footer on all admin portal routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="border-t border-zinc-800/80 bg-zinc-950 text-zinc-400 text-sm py-12">
