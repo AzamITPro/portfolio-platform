@@ -68,3 +68,55 @@ export interface ServiceItem {
   icon?: string;
   is_featured: boolean;
 }
+export interface EducationItem {
+  id: number;
+  institution: string;
+  degree: string;
+  field_of_study: string;
+  description?: string;
+  start_date: string;
+  end_date?: string;
+  is_current: boolean;
+}
+
+export interface ExperienceItem {
+  id: number;
+  company_name: string;
+  position: string;
+  employment_type: string;
+  location?: string;
+  description: string;
+  start_date: string;
+  end_date?: string;
+  is_current: boolean;
+}
+
+export interface CertificateItem {
+  id: number;
+  title: string;
+  issuer: string;
+  description?: string;
+  issue_date: string;
+  credential_url?: string;
+  is_featured: boolean;
+}
+
+export interface ProjectMediaItem {
+  id: number;
+  url: string;
+  caption?: string;
+  is_featured: boolean;
+}
+
+export interface ProjectDetail extends ProjectSummary {
+  description: string;
+  problem?: string;
+  solution?: string;
+  features?: string;
+  challenges?: string;
+  learnings?: string;
+  start_date?: string;
+  end_date?: string;
+  media_items: ProjectMediaItem[];
+  categories: string[];
+}
