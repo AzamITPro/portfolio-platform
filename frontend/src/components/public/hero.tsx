@@ -1,6 +1,9 @@
+"use client";
+
 import { Profile } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { trackEvent } from "@/lib/tracker";
 import { MapPin, Mail, ArrowDown, FileText } from "lucide-react";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -78,6 +81,7 @@ export function Hero({ profile }: HeroProps) {
               href="http://127.0.0.1:8000/api/v1/public/documents/cv"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("cv_download", "document", "cv")}
             >
               <Button variant="outline" size="lg" className="gap-2">
                 <FileText className="w-4 h-4" />
@@ -91,6 +95,11 @@ export function Hero({ profile }: HeroProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={link.platform}
+                onClick={() => {
+                  if (link.platform.toLowerCase().includes("github")) {
+                    trackEvent("github_click", "link", "github");
+                  }
+                }}
               >
                 <Button variant="outline" size="lg" className="gap-2">
                   <GithubIcon className="w-4 h-4" />

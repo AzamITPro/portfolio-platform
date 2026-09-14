@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/tracker";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -74,6 +75,7 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             title="GitHub Profile"
+            onClick={() => trackEvent("github_click", "link", "github")}
           >
             <Button variant="outline" size="sm" className="gap-2 text-xs">
               <GithubIcon className="w-3.5 h-3.5" />

@@ -8,22 +8,24 @@ from app.api.v1.endpoints.admin_projects import router as admin_projects_router
 from app.api.v1.endpoints.admin_resume import router as admin_resume_router
 from app.api.v1.endpoints.admin_communication import router as admin_comm_router
 from app.api.v1.endpoints.admin_media import router as admin_media_router
+from app.api.v1.endpoints.analytics import router as analytics_router
 
 api_router = APIRouter()
 
-# Mount Authentication router
+# Mount Public & Auth
 api_router.include_router(auth_router)
-
-# Mount Public Portfolio router
 api_router.include_router(public_router)
 
-# Mount Admin Routers
+# Mount Admin Management
 api_router.include_router(admin_profile_router)
 api_router.include_router(admin_skills_router)
 api_router.include_router(admin_projects_router)
 api_router.include_router(admin_resume_router)
 api_router.include_router(admin_comm_router)
 api_router.include_router(admin_media_router)
+
+# Mount Analytics
+api_router.include_router(analytics_router)
 
 
 @api_router.get("/status", tags=["System Status"])
@@ -42,6 +44,7 @@ def api_v1_status():
                 "admin_resume",
                 "admin_communication",
                 "admin_media",
+                "analytics",
             ],
         },
     )
