@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { apiClient } from "@/lib/api-client";
 import { ProjectDetail } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,30 @@ async function getProjectData(slug: string): Promise<ProjectDetail | null> {
   } catch {
     return null;
   }
+}
+
+// Dynamic SEO metadata generation for search engines and social sharing
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProjectData(slug);
+
+  if (!project) {
+    return {
+      title: "Project Not Found",
+      description: "The requested project case study could not be found.",
+    };
+  }
+
+  return {
+    title: `${project.title} | Case Study`,
+    description: project.short_description,
+    keywords: [project.title, project.project_type, ...project.skills],
+    openGraph: {
+      title: `${project.title} - Architectural Case Study`,
+      description: project.short_description,
+      type: "article",
+    },
+  };
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
@@ -132,7 +157,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
         {/* Deep-Dive Case Study Cards */}
         <div className="space-y-8 pt-4">
-          {/* Problem Statement */}
           {project.problem && (
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 space-y-3">
               <div className="flex items-center gap-2 text-rose-400 font-semibold text-sm">
@@ -145,7 +169,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Architectural Solution */}
           {project.solution && (
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 space-y-3">
               <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
@@ -158,7 +181,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Core Features */}
           {project.features && (
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 space-y-3">
               <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
@@ -171,7 +193,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Challenges & Mitigations */}
           {project.challenges && (
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 space-y-3">
               <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
@@ -184,7 +205,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Learnings & Takeaways */}
           {project.learnings && (
             <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800 space-y-3">
               <div className="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
