@@ -1,9 +1,6 @@
-<div dir="ltr">
-
-````markdown
 # Personal Portfolio & Professional Profile Platform
 
-> A production-grade, full-stack personal portfolio and content management platform engineered with modern software standards, decoupled architecture, and strict security controls.
+A production-grade, full-stack personal portfolio and content management platform engineered with modern software standards, decoupled architecture, and strict security controls.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-14+-black.svg?logo=next.js&logoColor=white)](https://nextjs.org)
@@ -35,7 +32,7 @@
    - Automated penetration audit script verifying zero SQL injection and path traversal vulnerabilities.
 4. **Self-Hosted Privacy Analytics:** In-house tracking for page views, unique visitor sessions, CV downloads, and outbound clicks without third-party tracking scripts.
 5. **Full Admin CMS:** Secure dashboard to manage projects, skills, services, career timeline, messages inbox, and media library.
-6. **Modern UI/UX:** Responsive Dark Developer Theme with accessible navigation, loading skeletons, and interactive contact forms.
+6. **Modern UI/UX:** Responsive Dark Developer Theme with accessible navigation, interactive case studies, and live contact forms.
 7. **Comprehensive Testing:** 100% automated test coverage across health, auth, and public API endpoints via `pytest`.
 
 ---
@@ -66,7 +63,6 @@ portfolio-platform/
 ├── docs/                   # Complete engineering documentation suite
 └── scripts/                # Administrative CLI scripts (admin creation, seed, audit)
 ```
-````
 
 📖 In-Depth Documentation
 Detailed engineering specifications are available in the docs/ directory:
@@ -78,6 +74,7 @@ Security Hardening Report
 Privacy-First Analytics Engine
 Local Development Guide
 Zero-Cost Production Deployment Blueprint
+
 🚀 Quick Start (Local Setup)
 
 1. Clone & Setup Backend
@@ -97,5 +94,3 @@ Zero-Cost Production Deployment Blueprint
    npm install
    npm run dev
    Visit http://localhost:3000 for the public portfolio and http://localhost:3000/admin/dashboard for the management dashboard.
-
-
