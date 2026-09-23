@@ -1,8 +1,13 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
+from pathlib import Path
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import FileResponse
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core.limiter import limiter
+from app.core.exceptions import NotFoundException
+from app.models.communication import SiteSetting
 from app.schemas.common import APIResponse
 from app.schemas.public import (
     PublicProfileOut,
@@ -17,6 +22,8 @@ from app.schemas.public import (
     ContactMessageCreate,
 )
 from app.services.public import public_service
+
+UPLOADS_DIR = Path(__file__).resolve().parents[4] / "uploads"
 
 router = APIRouter(prefix="/public", tags=["Public Portfolio"])
 
@@ -79,9 +86,35 @@ def get_public_services(db: Session = Depends(get_db)):
 
 @router.get("/documents/cv", response_model=APIResponse[Optional[PublicDocumentOut]])
 def get_public_cv(db: Session = Depends(get_db)):
-    """Retrieve the primary active resume document metadata and link."""
+    """Retrieve the primary active resume document metadata."""
     data = public_service.get_primary_cv(db)
     return APIResponse(message="CV metadata retrieved successfully", data=data)
+
+
+@router.get("/documents/cv/download")
+def download_public_cv(db: Session = Depends(get_db)):
+    """Stream and trigger direct download of the active primary resume PDF."""
+    doc = public_service.get_primary_cv_record(db)
+    if not doc or not doc.media:
+        raise NotFoundException("No active resume document currently available.")
+
+    file_path = UPLOADS_DIR / doc.media.storage_key
+    if not file_path.exists():
+        raise NotFoundException("Resume PDF file not found on storage disk.")
+
+    return FileResponse(
+        path=str(file_path),
+        filename=doc.title,
+        media_type="application/pdf",
+    )
+
+
+@router.get("/settings", response_model=APIResponse[Dict[str, str]])
+def get_public_site_settings(db: Session = Depends(get_db)):
+    """Retrieve public site configuration key-value dictionary."""
+    settings_rows = db.execute(select(SiteSetting)).scalars().all()
+    settings_dict = {s.key: s.value for s in settings_rows}
+    return APIResponse(message="Settings retrieved successfully", data=settings_dict)
 
 
 @router.post("/contact", response_model=APIResponse[None])
@@ -91,10 +124,6 @@ def submit_contact_form(
     msg: ContactMessageCreate,
     db: Session = Depends(get_db),
 ):
-    """
-    Submit a public contact inquiry.
-    Protected by rate-limiting (5 messages/hour per IP) and anonymized IP hashing.
-    """
     client_ip = request.client.host if request.client else "127.0.0.1"
     user_agent = request.headers.get("user-agent")
     public_service.submit_contact_message(db, msg, client_ip, user_agent)

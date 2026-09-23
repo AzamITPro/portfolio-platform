@@ -8,9 +8,9 @@ import {
   User,
   FolderGit2,
   Cpu,
-  Award,
-  GraduationCap,
   Wrench,
+  GraduationCap,
+  Award,
   Image as ImageIcon,
   Inbox,
   Settings,
@@ -19,15 +19,15 @@ import {
 
 const navigationItems = [
   { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Profile & Social", href: "/admin/dashboard#profile", icon: User },
-  { name: "Projects CMS", href: "/admin/dashboard#projects", icon: FolderGit2 },
-  { name: "Skills Arsenal", href: "/admin/dashboard#skills", icon: Cpu },
-  { name: "Services", href: "/admin/dashboard#services", icon: Wrench },
-  { name: "Journey & Career", href: "/admin/dashboard#journey", icon: GraduationCap },
-  { name: "Certificates", href: "/admin/dashboard#certificates", icon: Award },
-  { name: "Media Library", href: "/admin/dashboard#media", icon: ImageIcon },
-  { name: "Messages Inbox", href: "/admin/dashboard#messages", icon: Inbox },
-  { name: "Site Settings", href: "/admin/dashboard#settings", icon: Settings },
+  { name: "Profile & Social", href: "/admin/profile", icon: User },
+  { name: "Projects CMS", href: "/admin/projects", icon: FolderGit2 },
+  { name: "Skills Arsenal", href: "/admin/skills", icon: Cpu },
+  { name: "Services", href: "/admin/services", icon: Wrench },
+  { name: "Journey & Career", href: "/admin/journey", icon: GraduationCap },
+  { name: "Certificates", href: "/admin/certificates", icon: Award },
+  { name: "Media Library", href: "/admin/media", icon: ImageIcon },
+  { name: "Messages Inbox", href: "/admin/messages", icon: Inbox },
+  { name: "Site Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -35,7 +35,7 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-64 border-r border-zinc-800/80 bg-zinc-950 flex flex-col justify-between h-screen sticky top-0">
-      {/* Brand Top */}
+      {/* Brand Header */}
       <div>
         <div className="h-16 flex items-center gap-2.5 px-6 border-b border-zinc-800/80">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-mono text-sm font-bold shadow-md shadow-blue-500/20">
@@ -47,8 +47,8 @@ export function AdminSidebar() {
           </div>
         </div>
 
-        {/* Links Navigation */}
-        <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        {/* Navigation Items */}
+        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-8rem)]">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -56,9 +56,9 @@ export function AdminSidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 font-semibold"
                     : "text-zinc-400 hover:text-white hover:bg-zinc-900/60"
                 }`}
               >
@@ -74,7 +74,7 @@ export function AdminSidebar() {
       <div className="p-4 border-t border-zinc-800/80">
         <button
           onClick={() => logoutAdmin()}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           <span>Sign Out</span>

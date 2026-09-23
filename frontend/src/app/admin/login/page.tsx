@@ -23,8 +23,12 @@ export default function AdminLoginPage() {
       await loginAdmin(email, password);
       // Success: redirect to dashboard overview
       router.push("/admin/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Failed to authenticate administrator.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to authenticate administrator.");
+      }
     } finally {
       setLoading(false);
     }

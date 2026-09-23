@@ -5,6 +5,7 @@ import { apiClient } from "@/lib/api-client";
 import { ProjectDetail } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ProjectGallery } from "@/components/public/project-gallery";
 import {
   ArrowLeft,
   ExternalLink,
@@ -47,7 +48,6 @@ async function getProjectData(slug: string): Promise<ProjectDetail | null> {
   }
 }
 
-// Dynamic SEO metadata generation for search engines and social sharing
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectData(slug);
@@ -82,7 +82,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-zinc-950 py-16 sm:py-24 text-zinc-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-12">
-        {/* Navigation & Back */}
+        {/* Navigation & Status */}
         <div className="flex items-center justify-between">
           <Link
             href="/#projects"
@@ -110,7 +110,31 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </p>
         </div>
 
-        {/* Links & Actions */}
+        {/* Showcase Banner: Video Demo or Cover Image */}
+        {project.cover_image_url && (
+          <div className="rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-950 shadow-2xl">
+            {project.cover_image_url.endsWith(".mp4") || project.cover_image_url.endsWith(".webm") ? (
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full aspect-video object-cover"
+              >
+                <source src={project.cover_image_url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={project.cover_image_url}
+                alt={project.title}
+                className="w-full max-h-[460px] object-cover"
+              />
+            )}
+          </div>
+        )}
+
+        {/* Links & Source Code Actions */}
         <div className="flex flex-wrap items-center gap-3 pt-2 border-y border-zinc-800/80 py-4">
           {project.github_url && (
             <a
@@ -154,6 +178,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             ))}
           </div>
         </div>
+
+        {/* Interactive Screenshots Gallery (Lightbox with Next/Prev) */}
+        {project.media_items && project.media_items.length > 0 && (
+          <ProjectGallery mediaItems={project.media_items} />
+        )}
 
         {/* Deep-Dive Case Study Cards */}
         <div className="space-y-8 pt-4">

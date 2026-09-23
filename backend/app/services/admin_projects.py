@@ -1,9 +1,9 @@
-from typing import List, Optional
-from sqlalchemy import select
+from typing import List
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session, selectinload
-from app.models.project import Project, ProjectCategory
+from app.models.project import Project, ProjectCategory, ProjectMedia
 from app.models.skill import Skill
-from app.core.exceptions import NotFoundException, ConflictException
+from app.core.exceptions import NotFoundException, ConflictException, BadRequestException
 from app.schemas.admin_projects import (
     ProjectCategoryCreate,
     ProjectCategoryUpdate,
@@ -13,18 +13,16 @@ from app.schemas.admin_projects import (
 
 
 class AdminProjectsService:
-    # --- Project Category Operations ---
+    # --- Categories ---
     @staticmethod
     def list_categories(db: Session) -> List[ProjectCategory]:
-        query = select(ProjectCategory).order_by(ProjectCategory.display_order.asc(), ProjectCategory.id.asc())
-        return list(db.execute(query).scalars().all())
+        return list(db.execute(select(ProjectCategory).order_by(ProjectCategory.display_order.asc())).scalars().all())
 
     @staticmethod
     def create_category(db: Session, cat_in: ProjectCategoryCreate) -> ProjectCategory:
         existing = db.execute(select(ProjectCategory).where(ProjectCategory.slug == cat_in.slug)).scalars().first()
         if existing:
             raise ConflictException(f"Category slug '{cat_in.slug}' already exists.")
-
         category = ProjectCategory(**cat_in.model_dump())
         db.add(category)
         db.commit()
@@ -35,17 +33,9 @@ class AdminProjectsService:
     def update_category(db: Session, cat_id: int, cat_in: ProjectCategoryUpdate) -> ProjectCategory:
         category = db.get(ProjectCategory, cat_id)
         if not category:
-            raise NotFoundException(f"Project category with ID {cat_id} not found.")
-
-        fields = cat_in.model_dump(exclude_unset=True)
-        if "slug" in fields and fields["slug"] != category.slug:
-            existing = db.execute(select(ProjectCategory).where(ProjectCategory.slug == fields["slug"])).scalars().first()
-            if existing:
-                raise ConflictException(f"Category slug '{fields['slug']}' already exists.")
-
-        for key, value in fields.items():
-            setattr(category, key, value)
-
+            raise NotFoundException(f"Category {cat_id} not found.")
+        for k, v in cat_in.model_dump(exclude_unset=True).items():
+            setattr(category, k, v)
         db.commit()
         db.refresh(category)
         return category
@@ -54,11 +44,11 @@ class AdminProjectsService:
     def delete_category(db: Session, cat_id: int) -> None:
         category = db.get(ProjectCategory, cat_id)
         if not category:
-            raise NotFoundException(f"Project category with ID {cat_id} not found.")
+            raise NotFoundException(f"Category {cat_id} not found.")
         db.delete(category)
         db.commit()
 
-    # --- Project Operations ---
+    # --- Projects ---
     @staticmethod
     def list_projects(db: Session) -> List[Project]:
         query = (
@@ -67,6 +57,7 @@ class AdminProjectsService:
             .options(
                 selectinload(Project.skills),
                 selectinload(Project.categories),
+                selectinload(Project.media_items),
             )
         )
         return list(db.execute(query).scalars().all())
@@ -89,26 +80,33 @@ class AdminProjectsService:
 
     @staticmethod
     def create_project(db: Session, project_in: ProjectCreate) -> Project:
-        # Validate unique slug
+        if len(project_in.gallery_media_ids) > 6:
+            raise BadRequestException("Maximum of 6 gallery images allowed per project.")
+
         existing = db.execute(select(Project).where(Project.slug == project_in.slug)).scalars().first()
         if existing:
             raise ConflictException(f"Project slug '{project_in.slug}' is already taken.")
 
-        # Prepare base fields
-        data = project_in.model_dump(exclude={"skill_ids", "category_ids"})
+        data = project_in.model_dump(exclude={"skill_ids", "category_ids", "gallery_media_ids"})
         project = Project(**data)
 
-        # Attach linked skills (Many-to-Many)
         if project_in.skill_ids:
-            skills_query = select(Skill).where(Skill.id.in_(project_in.skill_ids))
-            project.skills = list(db.execute(skills_query).scalars().all())
-
-        # Attach linked categories (Many-to-Many)
-        if project_in.category_ids:
-            cats_query = select(ProjectCategory).where(ProjectCategory.id.in_(project_in.category_ids))
-            project.categories = list(db.execute(cats_query).scalars().all())
+            skills = db.execute(select(Skill).where(Skill.id.in_(project_in.skill_ids))).scalars().all()
+            project.skills = list(skills)
 
         db.add(project)
+        db.flush()
+
+        # Save up to 6 gallery media items
+        for idx, media_id in enumerate(project_in.gallery_media_ids[:6]):
+            pm = ProjectMedia(
+                project_id=project.id,
+                media_id=media_id,
+                display_order=idx + 1,
+                is_featured=False,
+            )
+            db.add(pm)
+
         db.commit()
         db.refresh(project)
         return AdminProjectsService.get_project_by_id(db, project.id)
@@ -117,24 +115,28 @@ class AdminProjectsService:
     def update_project(db: Session, project_id: int, project_in: ProjectUpdate) -> Project:
         project = AdminProjectsService.get_project_by_id(db, project_id)
 
-        fields = project_in.model_dump(exclude_unset=True, exclude={"skill_ids", "category_ids"})
-        if "slug" in fields and fields["slug"] != project.slug:
-            existing = db.execute(select(Project).where(Project.slug == fields["slug"])).scalars().first()
-            if existing:
-                raise ConflictException(f"Project slug '{fields['slug']}' is already taken.")
+        if project_in.gallery_media_ids is not None and len(project_in.gallery_media_ids) > 6:
+            raise BadRequestException("Maximum of 6 gallery images allowed per project.")
 
-        for key, value in fields.items():
-            setattr(project, key, value)
+        fields = project_in.model_dump(exclude_unset=True, exclude={"skill_ids", "category_ids", "gallery_media_ids"})
+        for k, v in fields.items():
+            setattr(project, k, v)
 
-        # Update skills if specified
         if project_in.skill_ids is not None:
-            skills_query = select(Skill).where(Skill.id.in_(project_in.skill_ids))
-            project.skills = list(db.execute(skills_query).scalars().all())
+            skills = db.execute(select(Skill).where(Skill.id.in_(project_in.skill_ids))).scalars().all()
+            project.skills = list(skills)
 
-        # Update categories if specified
-        if project_in.category_ids is not None:
-            cats_query = select(ProjectCategory).where(ProjectCategory.id.in_(project_in.category_ids))
-            project.categories = list(db.execute(cats_query).scalars().all())
+        # Update Gallery (Replace with new selection up to 6)
+        if project_in.gallery_media_ids is not None:
+            db.execute(delete(ProjectMedia).where(ProjectMedia.project_id == project.id))
+            for idx, media_id in enumerate(project_in.gallery_media_ids[:6]):
+                pm = ProjectMedia(
+                    project_id=project.id,
+                    media_id=media_id,
+                    display_order=idx + 1,
+                    is_featured=False,
+                )
+                db.add(pm)
 
         db.commit()
         db.refresh(project)

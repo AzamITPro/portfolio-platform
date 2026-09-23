@@ -46,6 +46,12 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+    # Email / SMTP Configuration
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = "azamaljarmozi@gmail.com"
+    SMTP_PASSWORD: str = ""  # App Password from Google Account
+    ADMIN_NOTIFICATION_EMAIL: str = "azamaljarmozi@gmail.com"
 
 
 settings = Settings()

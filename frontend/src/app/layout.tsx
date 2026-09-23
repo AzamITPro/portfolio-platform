@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { AnalyticsTracker } from "@/components/public/analytics-tracker";
+import { LanguageProvider } from "@/context/language-context";
 import "./globals.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -48,12 +49,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+async function getSiteVerificationCode(): Promise<string | null> {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/v1/public/settings", { cache: "no-store" });
+    const data = await res.json();
+    return data.success && data.data?.google_site_verification ? data.data.google_site_verification : null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Google Structured Data (JSON-LD) for rich search snippet
+  const googleVerification = await getSiteVerificationCode();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -77,16 +89,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
+        {googleVerification && (
+          <meta name="google-site-verification" content={googleVerification} />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="min-h-screen bg-zinc-950 text-zinc-100 antialiased selection:bg-blue-500 selection:text-white flex flex-col">
-        <AnalyticsTracker />
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <LanguageProvider>
+          <AnalyticsTracker />
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

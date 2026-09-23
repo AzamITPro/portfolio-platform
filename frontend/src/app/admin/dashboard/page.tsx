@@ -1,11 +1,7 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { apiClient } from "@/lib/api-client";
 import { ProjectSummary, SkillCategory, ServiceItem } from "@/types";
 import {
-  FolderGit2,
-  Cpu,
-  Wrench,
   Users,
   Eye,
   FileDown,
@@ -13,7 +9,6 @@ import {
   TrendingUp,
   Database,
   ExternalLink,
-  CheckCircle2,
 } from "lucide-react";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -102,8 +97,7 @@ async function getDashboardData() {
 }
 
 export default async function AdminDashboardPage() {
-  const { projectsCount, skillsCount, servicesCount, analytics } =
-    await getDashboardData();
+  const { analytics } = await getDashboardData();
 
   const maxDailyViews = Math.max(
     ...analytics.daily_traffic.map((d) => d.views),
@@ -241,7 +235,7 @@ export default async function AdminDashboardPage() {
             {analytics.top_pages.length === 0 ? (
               <p className="text-xs text-zinc-400">No page views recorded yet.</p>
             ) : (
-              analytics.top_pages.map((p, idx) => (
+              analytics.top_pages.map((p) => (
                 <div
                   key={p.path}
                   className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/60 text-xs"

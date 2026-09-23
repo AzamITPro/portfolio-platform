@@ -3,8 +3,8 @@ import { ProjectSummary } from "@/types";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ArrowRight, FolderGit2 } from "lucide-react";
-
+// استبدل السطر السادس بهذا:
+import { ExternalLink, ArrowRight } from "lucide-react";
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg

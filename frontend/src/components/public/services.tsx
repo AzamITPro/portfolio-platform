@@ -1,12 +1,23 @@
 import { ServiceItem } from "@/types";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { Code, Terminal, Server, Cpu } from "lucide-react";
+import { Code, Server, Database, Terminal, Globe, Layers, Cpu } from "lucide-react";
 
 interface ServicesProps {
   services: ServiceItem[];
 }
 
-export function Services({ services }: ServicesProps) {
+function RenderServiceIcon({ icon, className = "w-5 h-5" }: { icon?: string; className?: string }) {
+  const i = icon?.toLowerCase() || "code";
+  if (i.includes("server")) return <Server className={className} />;
+  if (i.includes("database")) return <Database className={className} />;
+  if (i.includes("terminal")) return <Terminal className={className} />;
+  if (i.includes("globe")) return <Globe className={className} />;
+  if (i.includes("layer")) return <Layers className={className} />;
+  if (i.includes("cpu")) return <Cpu className={className} />;
+  return <Code className={className} />;
+}
+
+export default function Services({ services }: ServicesProps) {
   if (!services || services.length === 0) return null;
 
   return (
@@ -26,7 +37,7 @@ export function Services({ services }: ServicesProps) {
             >
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Code className="w-5 h-5" />
+                  <RenderServiceIcon icon={service.icon} />
                 </div>
                 <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
                   {service.title}
@@ -35,7 +46,7 @@ export function Services({ services }: ServicesProps) {
                   {service.short_description}
                 </p>
               </div>
-              <p className="text-xs text-zinc-500 border-t border-zinc-800/60 pt-3">
+              <p className="text-xs text-zinc-500 border-t border-zinc-800/60 pt-3 leading-relaxed">
                 {service.description}
               </p>
             </div>
@@ -45,3 +56,5 @@ export function Services({ services }: ServicesProps) {
     </section>
   );
 }
+
+export { Services };

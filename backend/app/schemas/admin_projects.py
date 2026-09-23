@@ -61,6 +61,7 @@ class ProjectCreate(BaseModel):
     display_order: int = 0
     skill_ids: List[int] = []
     category_ids: List[int] = []
+    gallery_media_ids: List[int] = []  # Max 6 screenshots for the gallery
 
 
 class ProjectUpdate(BaseModel):
@@ -86,6 +87,7 @@ class ProjectUpdate(BaseModel):
     display_order: Optional[int] = None
     skill_ids: Optional[List[int]] = None
     category_ids: Optional[List[int]] = None
+    gallery_media_ids: Optional[List[int]] = None
 
 
 class SkillBriefOut(BaseModel):

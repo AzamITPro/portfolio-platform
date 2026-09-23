@@ -5,10 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from app.models.user import Profile, SocialLink
 from app.models.skill import SkillCategory, Skill
-from app.models.project import Project, ProjectCategory
+from app.models.project import Project, ProjectCategory, ProjectMedia
 from app.models.resume import Certificate, Education, Experience, Service, Document
 from app.models.communication import ContactMessage
 from app.core.exceptions import NotFoundException
+from app.services.email import email_service
 from app.schemas.public import (
     PublicProfileOut,
     PublicSocialLinkOut,
@@ -127,7 +128,7 @@ class PublicService:
             .where(Project.slug == slug, Project.is_visible == True)
             .options(
                 selectinload(Project.cover_media),
-                selectinload(Project.media_items),
+                selectinload(Project.media_items).selectinload(ProjectMedia.media),
                 selectinload(Project.skills),
                 selectinload(Project.categories),
             )
@@ -144,6 +145,7 @@ class PublicService:
                 is_featured=m.is_featured,
             )
             for m in project.media_items
+            if m.media
         ]
 
         return PublicProjectDetailOut(
@@ -246,13 +248,21 @@ class PublicService:
         )
 
     @staticmethod
+    def get_primary_cv_record(db: Session) -> Optional[Document]:
+        query = (
+            select(Document)
+            .where(Document.is_primary == True, Document.is_visible == True, Document.type == "cv")
+            .options(selectinload(Document.media))
+            .limit(1)
+        )
+        return db.execute(query).scalars().first()
+
+    @staticmethod
     def submit_contact_message(
         db: Session, msg: ContactMessageCreate, client_ip: str, user_agent: Optional[str]
     ) -> None:
-        # Privacy protection: Hash IP address with SHA-256 before persisting
         ip_hash = hashlib.sha256(client_ip.encode("utf-8")).hexdigest()
 
-        # XSS Sanitization: Escape dangerous characters in user input
         sanitized_name = html.escape(msg.name.strip())
         sanitized_subject = html.escape(msg.subject.strip())
         sanitized_message = html.escape(msg.message.strip())
@@ -268,6 +278,13 @@ class PublicService:
         )
         db.add(new_msg)
         db.commit()
+
+        email_service.notify_admin_new_inquiry(
+            sender_name=sanitized_name,
+            sender_email=msg.email.strip().lower(),
+            subject=sanitized_subject,
+            message=sanitized_message,
+        )
 
 
 public_service = PublicService()

@@ -20,11 +20,15 @@ ALLOWED_EXTENSIONS = {
     "svg": ("image", "image/svg+xml"),
     # Documents
     "pdf": ("document", "application/pdf"),
+    # Short Demo Videos (< 1 minute)
+    "mp4": ("video", "video/mp4"),
+    "webm": ("video", "video/webm"),
 }
 
 # Max file sizes
-MAX_IMAGE_SIZE = 5 * 1024 * 1024       # 5 MB
-MAX_DOCUMENT_SIZE = 10 * 1024 * 1024   # 10 MB
+MAX_IMAGE_SIZE = 10 * 1024 * 1024       # 10 MB
+MAX_DOCUMENT_SIZE = 15 * 1024 * 1024   # 15 MB
+MAX_VIDEO_SIZE = 35 * 1024 * 1024      # 35 MB (Ideal for high-res 60s demo clips)
 
 UPLOADS_DIR = Path(__file__).resolve().parents[2] / "uploads"
 
@@ -63,8 +67,14 @@ class AdminMediaService:
         content = await file.read()
         file_size = len(content)
 
-        # 3. File Size Validation
-        max_limit = MAX_IMAGE_SIZE if file_category == "image" else MAX_DOCUMENT_SIZE
+       # 3. File Size Validation
+        if file_category == "image":
+            max_limit = MAX_IMAGE_SIZE
+        elif file_category == "video":
+            max_limit = MAX_VIDEO_SIZE
+        else:
+            max_limit = MAX_DOCUMENT_SIZE
+
         if file_size > max_limit:
             limit_mb = max_limit // (1024 * 1024)
             raise BadRequestException(f"File exceeds maximum allowed size of {limit_mb}MB.")

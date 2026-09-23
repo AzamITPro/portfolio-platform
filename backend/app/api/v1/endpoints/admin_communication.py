@@ -112,3 +112,36 @@ def delete_setting(
     """Delete a site setting by key."""
     admin_comm_service.delete_setting(db, key)
     return APIResponse(message="Setting deleted successfully", data=None)
+
+from pydantic import BaseModel
+
+class ReplyRequest(BaseModel):
+    reply_message: str
+    subject: Optional[str] = None
+
+
+@router.post("/messages/{msg_id}/reply", response_model=APIResponse[None])
+def reply_to_message(
+    msg_id: int,
+    payload: ReplyRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """
+    Send an email reply directly to the client and mark the inquiry as replied.
+    """
+    from app.services.email import email_service
+    msg = admin_comm_service.get_message(db, msg_id)
+    reply_subject = payload.subject or f"Re: {msg.subject}"
+    
+    # Send actual email to the inquirer
+    email_service.send_email(
+        to_email=msg.email,
+        subject=reply_subject,
+        body=payload.reply_message,
+    )
+    
+    # Update status to replied
+    admin_comm_service.update_message_status(db, msg_id, MessageStatusUpdate(status="replied"))
+    
+    return APIResponse(message=f"Reply sent successfully to {msg.email}", data=None)

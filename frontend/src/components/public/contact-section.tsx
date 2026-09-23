@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Button } from "@/components/ui/button";
-import { Mail, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
+import { Mail, Phone, Send, CheckCircle2, AlertCircle, Loader2, MessageSquare } from "lucide-react";
 
 interface ContactSectionProps {
   email: string;
+  phone?: string;
 }
 
-export function ContactSection({ email }: ContactSectionProps) {
+export function ContactSection({ email, phone }: ContactSectionProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,6 +21,8 @@ export function ContactSection({ email }: ContactSectionProps) {
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [responseMsg, setResponseMsg] = useState("");
+
+  const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +39,11 @@ export function ContactSection({ email }: ContactSectionProps) {
 
       if (res.ok && data.success) {
         setStatus("success");
-        setResponseMsg(data.message || "Thank you! Your message has been sent successfully.");
+        setResponseMsg(data.message || t.contact.successMsg);
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         setStatus("error");
-        setResponseMsg(data.error?.message || "Failed to deliver message. Please try again.");
+        setResponseMsg(data.error?.message || "Failed to deliver message.");
       }
     } catch {
       setStatus("error");
@@ -50,33 +55,62 @@ export function ContactSection({ email }: ContactSectionProps) {
     <section id="contact" className="py-20 border-t border-zinc-900 bg-zinc-950">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <SectionHeading
-          badge="Get in Touch"
-          title="Let's Build Something Together"
-          description="Have a question, a project collaboration idea, or an opportunity? Send me a direct message."
+          badge={t.headings.contactBadge}
+          title={t.headings.contactTitle}
+          description={t.contact.directDesc}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start max-w-5xl">
-          {/* Left Contact Card */}
-          <div className="lg:col-span-5 p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 space-y-6">
-            <h3 className="text-xl font-bold text-white">Direct Communication</h3>
+          {/* Channels Card */}
+          <div className="lg:col-span-5 p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 space-y-6 text-start">
+            <h3 className="text-xl font-bold text-white">{t.contact.directComm}</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              I am available for software engineering opportunities, contract projects, and technical collaborations.
+              {t.contact.directDesc}
             </p>
+
             <div className="space-y-4 pt-2">
               <a
                 href={`mailto:${email}`}
                 className="flex items-center gap-3 text-sm text-zinc-300 hover:text-blue-400 transition-colors"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5" />
                 </div>
-                <span>{email}</span>
+                <span className="truncate">{email}</span>
               </a>
+
+              {phone && (
+                <>
+                  <a
+                    href={`tel:${phone}`}
+                    className="flex items-center gap-3 text-sm text-zinc-300 hover:text-emerald-400 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <span className="font-mono">{phone}</span>
+                  </a>
+
+                  {cleanPhone && (
+                    <a
+                      href={`https://wa.me/${cleanPhone}?text=Hello%20Azzam,%20I%20saw%20your%20portfolio...`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-sm text-emerald-400 hover:underline font-medium pt-1"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <span>{t.contact.chatWhatsapp}</span>
+                    </a>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Form */}
-          <div className="lg:col-span-7">
+          {/* Form */}
+          <div className="lg:col-span-7 text-start">
             <form onSubmit={handleSubmit} className="space-y-4">
               {status === "success" && (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-center gap-3">
@@ -94,49 +128,45 @@ export function ContactSection({ email }: ContactSectionProps) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">Your Name</label>
+                  <label className="text-xs font-semibold text-zinc-300">{t.contact.nameLabel}</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Jane Doe"
                     className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors text-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">Your Email</label>
+                  <label className="text-xs font-semibold text-zinc-300">{t.contact.emailLabel}</label>
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="jane@company.com"
                     className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors text-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Subject</label>
+                <label className="text-xs font-semibold text-zinc-300">{t.contact.subjectLabel}</label>
                 <input
                   type="text"
                   required
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="Project Inquiry / Job Opportunity"
                   className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors text-sm"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Message</label>
+                <label className="text-xs font-semibold text-zinc-300">{t.contact.messageLabel}</label>
                 <textarea
                   required
                   rows={5}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Describe your project, question, or timeline..."
                   className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors text-sm resize-none"
                 />
               </div>
@@ -145,17 +175,17 @@ export function ContactSection({ email }: ContactSectionProps) {
                 type="submit"
                 size="lg"
                 disabled={status === "loading"}
-                className="w-full sm:w-auto gap-2"
+                className="w-full sm:w-auto gap-2 font-semibold"
               >
                 {status === "loading" ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Sending Message...
+                    {t.contact.sending}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Send Message
+                    {t.contact.sendButton}
                   </>
                 )}
               </Button>

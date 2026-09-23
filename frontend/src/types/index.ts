@@ -97,7 +97,10 @@ export interface CertificateItem {
   issuer: string;
   description?: string;
   issue_date: string;
+  expiry_date?: string;
+  credential_id?: string;
   credential_url?: string;
+  certificate_media_url?: string;
   is_featured: boolean;
 }
 
