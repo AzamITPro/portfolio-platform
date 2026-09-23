@@ -64,33 +64,36 @@ portfolio-platform/
 └── scripts/                # Administrative CLI scripts (admin creation, seed, audit)
 ```
 
-📖 In-Depth Documentation
-Detailed engineering specifications are available in the docs/ directory:
-System Architecture
-Database Schema & ERD
-RESTful API Specification
-Authentication & Sessions
-Security Hardening Report
-Privacy-First Analytics Engine
-Local Development Guide
-Zero-Cost Production Deployment Blueprint
+## 📖 In-Depth Documentation
 
-🚀 Quick Start (Local Setup)
+Detailed engineering specifications are available in the [`docs/`](./docs) directory:
 
-1. Clone & Setup Backend
-   code
-   Powershell
-   cd backend
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-   alembic upgrade head
-   python ..\scripts\create_admin.py
-   uvicorn app.main:app --reload --port 8000
+- [System Architecture](./docs/ARCHITECTURE.md)
+- [Database Schema & ERD](./docs/DATABASE.md)
+- [RESTful API Specification](./docs/API.md)
+- [Authentication & Sessions](./docs/AUTHENTICATION.md)
+- [Security Hardening Report](./docs/SECURITY.md)
+- [Privacy-First Analytics Engine](./docs/ANALYTICS.md)
+- [Local Development Guide](./docs/DEVELOPMENT.md)
+- [Zero-Cost Production Deployment Blueprint](./docs/DEPLOYMENT.md)
+
+---
+
+## 🚀 Quick Start (Local Setup)
+
+### 1. Clone & Setup Backend
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+alembic upgrade head
+python ..\scripts\create_admin.py
+uvicorn app.main:app --reload --port 8000
 2. Setup Frontend
-   code
-   Powershell
-   cd frontend
-   npm install
-   npm run dev
+ cd frontend
+npm install
+npm run dev
    Visit http://localhost:3000 for the public portfolio and http://localhost:3000/admin/dashboard for the management dashboard.
+```
