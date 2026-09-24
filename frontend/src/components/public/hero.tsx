@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Profile } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,11 +47,20 @@ interface HeroProps {
 
 export function Hero({ profile }: HeroProps) {
   const { lang, t } = useLanguage();
+  const [imgError, setImgError] = useState(false);
 
   const availabilityText =
     lang === "ar" && profile.availability.toLowerCase().includes("available")
       ? t.hero.available
       : profile.availability;
+
+  // Resolve cloud URL and eliminate localhost mixed content
+  const backendBase = (process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1").replace("/api/v1", "");
+  const resolvedAvatarUrl = profile.profile_image_url
+    ? profile.profile_image_url
+        .replace("http://127.0.0.1:8000", backendBase)
+        .replace("http://localhost:8000", backendBase)
+    : null;
 
   return (
     <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-24 overflow-hidden">
@@ -100,17 +110,17 @@ export function Hero({ profile }: HeroProps) {
                   {t.hero.contactMe}
                 </Button>
               </a>
-             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1"}/public/documents/cv/download`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackEvent("cv_download", "document", "cv")}
-            >
-              <Button variant="outline" size="lg" className="gap-2">
-                <FileText className="w-4 h-4" />
-                {t.hero.downloadCv}
-              </Button>
-            </a>
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1"}/public/documents/cv/download`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent("cv_download", "document", "cv")}
+              >
+                <Button variant="outline" size="lg" className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  {t.hero.downloadCv}
+                </Button>
+              </a>
               {profile.social_links.map((link) => (
                 <a
                   key={link.id}
@@ -135,18 +145,19 @@ export function Hero({ profile }: HeroProps) {
           <div className="lg:col-span-4 flex justify-center lg:justify-end">
             <div className="relative group">
               <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 opacity-30 blur-xl group-hover:opacity-50 transition duration-500" />
-              <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl overflow-hidden border-2 border-zinc-800 bg-zinc-900 shadow-2xl">
-                {profile.profile_image_url ? (
+              <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl overflow-hidden border-2 border-zinc-800 bg-zinc-900 shadow-2xl flex items-center justify-center">
+                {resolvedAvatarUrl && !imgError ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={profile.profile_image_url}
+                    src={resolvedAvatarUrl}
                     alt={profile.full_name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={() => setImgError(true)}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 bg-zinc-950">
-                    <span className="text-4xl font-extrabold text-blue-500">A</span>
-                    <span className="text-xs text-zinc-500 pt-2 font-mono">Azzam</span>
+                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 bg-zinc-950 space-y-2">
+                    <span className="text-5xl font-extrabold text-blue-500">A</span>
+                    <span className="text-xs text-zinc-400 font-mono tracking-wide">{profile.full_name}</span>
                   </div>
                 )}
               </div>

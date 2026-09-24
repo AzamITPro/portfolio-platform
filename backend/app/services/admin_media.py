@@ -101,7 +101,9 @@ class AdminMediaService:
                 pass
 
         # 7. Construct publicly accessible URL
-        file_url = f"http://127.0.0.1:8000/uploads/{unique_filename}"
+        # Construct production HTTPS URL on Render, or localhost during local dev
+        base_host = "https://portfolio-backend-kofh.onrender.com" if settings.ENVIRONMENT == "production" else "http://127.0.0.1:8000"
+        file_url = f"{base_host}/uploads/{unique_filename}"
 
         # 8. Save metadata to PostgreSQL
         media_record = Media(
