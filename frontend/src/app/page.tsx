@@ -98,7 +98,7 @@ export default async function HomePage() {
         <div className="text-center space-y-4 max-w-md">
           <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-400 mx-auto flex items-center justify-center font-bold">!</div>
           <h1 className="text-xl font-semibold">Backend Connection Pending</h1>
-          <p className="text-sm text-zinc-400">Make sure FastAPI is running on http://127.0.0.1:8000.</p>
+          <p className="text-sm text-zinc-400">Make sure FastAPI is running on https://portfolio-backend-kofh.onrender.com.</p>
         </div>
       </main>
     );

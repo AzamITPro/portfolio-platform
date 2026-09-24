@@ -51,7 +51,7 @@ export default function AdminSettingsPage() {
     };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/settings", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/settings", {
         headers,
         credentials: "include",
       });
@@ -100,8 +100,8 @@ export default function AdminSettingsPage() {
     const token = getAuthToken();
     const isEdit = Boolean(editingSetting);
     const url = isEdit
-      ? `http://127.0.0.1:8000/api/v1/admin/settings/${editingSetting?.key}`
-      : "http://127.0.0.1:8000/api/v1/admin/settings";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/settings/${editingSetting?.key}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/settings";
     const method = isEdit ? "PUT" : "POST";
 
     const payload = isEdit
@@ -142,7 +142,7 @@ export default function AdminSettingsPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/settings/${key}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/settings/${key}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

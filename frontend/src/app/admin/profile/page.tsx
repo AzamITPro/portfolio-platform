@@ -99,10 +99,10 @@ export default function AdminProfilePage() {
 
     try {
       const [profileRes, socialRes, cvRes, mediaRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/admin/profile", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/social-links", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/documents/cv", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/media?file_type=image", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/profile", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/social-links", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/documents/cv", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media?file_type=image", { headers, credentials: "include" }),
       ]);
 
       const profileJson = await profileRes.json();
@@ -145,7 +145,7 @@ export default function AdminProfilePage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/profile", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -181,7 +181,7 @@ export default function AdminProfilePage() {
     formData.append("file", cvFile);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/documents/upload-cv", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/documents/upload-cv", {
         method: "POST",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData,
@@ -210,7 +210,7 @@ export default function AdminProfilePage() {
     const token = getAuthToken();
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/social-links", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/social-links", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -237,7 +237,7 @@ export default function AdminProfilePage() {
     if (!confirm(`Delete ${platform} link?`)) return;
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/social-links/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/social-links/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

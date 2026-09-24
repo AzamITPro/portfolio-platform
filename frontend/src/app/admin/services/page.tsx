@@ -82,7 +82,7 @@ export default function AdminServicesPage() {
     };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/services", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/services", {
         headers,
         credentials: "include",
       });
@@ -148,8 +148,8 @@ export default function AdminServicesPage() {
 
     const token = getAuthToken();
     const url = editingService
-      ? `http://127.0.0.1:8000/api/v1/admin/services/${editingService.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/services";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/services/${editingService.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/services";
     const method = editingService ? "PUT" : "POST";
 
     try {
@@ -186,7 +186,7 @@ export default function AdminServicesPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/services/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/services/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

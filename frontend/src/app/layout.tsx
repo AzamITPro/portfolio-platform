@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 
 async function getSiteVerificationCode(): Promise<string | null> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/v1/public/settings", { cache: "no-store" });
+    const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/public/settings", { cache: "no-store" });
     const data = await res.json();
     return data.success && data.data?.google_site_verification ? data.data.google_site_verification : null;
   } catch {

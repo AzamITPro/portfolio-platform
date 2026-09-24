@@ -61,7 +61,7 @@ export default function AdminMediaPage() {
     };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/media", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media", {
         headers,
         credentials: "include",
       });
@@ -93,7 +93,7 @@ export default function AdminMediaPage() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/media/upload", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media/upload", {
         method: "POST",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -124,7 +124,7 @@ export default function AdminMediaPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/media/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/media/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

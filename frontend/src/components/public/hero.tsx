@@ -101,7 +101,7 @@ export function Hero({ profile }: HeroProps) {
                 </Button>
               </a>
              <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"}/public/documents/cv/download`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1"}/public/documents/cv/download`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent("cv_download", "document", "cv")}

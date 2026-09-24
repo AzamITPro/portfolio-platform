@@ -96,8 +96,8 @@ export default function AdminJourneyPage() {
 
     try {
       const [eduRes, expRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/admin/education", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/experience", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/education", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/experience", { headers, credentials: "include" }),
       ]);
 
       const eduJson = await eduRes.json();
@@ -156,8 +156,8 @@ export default function AdminJourneyPage() {
     setSaving(true);
     const token = getAuthToken();
     const url = editingEdu
-      ? `http://127.0.0.1:8000/api/v1/admin/education/${editingEdu.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/education";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/education/${editingEdu.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/education";
     const method = editingEdu ? "PUT" : "POST";
 
     const payload = {
@@ -193,7 +193,7 @@ export default function AdminJourneyPage() {
     if (!confirm(`Delete education record from "${institution}"?`)) return;
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/education/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/education/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
@@ -248,8 +248,8 @@ export default function AdminJourneyPage() {
     setSaving(true);
     const token = getAuthToken();
     const url = editingExp
-      ? `http://127.0.0.1:8000/api/v1/admin/experience/${editingExp.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/experience";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/experience/${editingExp.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/experience";
     const method = editingExp ? "PUT" : "POST";
 
     const payload = {
@@ -285,7 +285,7 @@ export default function AdminJourneyPage() {
     if (!confirm(`Delete experience record at "${company}"?`)) return;
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/experience/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/experience/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

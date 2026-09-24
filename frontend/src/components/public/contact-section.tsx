@@ -29,7 +29,7 @@ export function ContactSection({ email, phone }: ContactSectionProps) {
     setStatus("loading");
     setResponseMsg("");
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/public/contact`, {

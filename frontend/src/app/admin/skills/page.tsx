@@ -84,8 +84,8 @@ export default function AdminSkillsPage() {
 
     try {
       const [catsRes, skillsRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/admin/skill-categories", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/skills", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/skill-categories", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/skills", { headers, credentials: "include" }),
       ]);
 
       const catsData = await catsRes.json();
@@ -138,8 +138,8 @@ export default function AdminSkillsPage() {
 
     const token = getAuthToken();
     const url = editingCat
-      ? `http://127.0.0.1:8000/api/v1/admin/skill-categories/${editingCat.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/skill-categories";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/skill-categories/${editingCat.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/skill-categories";
     const method = editingCat ? "PUT" : "POST";
 
     try {
@@ -175,7 +175,7 @@ export default function AdminSkillsPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/skill-categories/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/skill-categories/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
@@ -236,8 +236,8 @@ export default function AdminSkillsPage() {
 
     const token = getAuthToken();
     const url = editingSkill
-      ? `http://127.0.0.1:8000/api/v1/admin/skills/${editingSkill.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/skills";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/skills/${editingSkill.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/skills";
     const method = editingSkill ? "PUT" : "POST";
 
     try {
@@ -273,7 +273,7 @@ export default function AdminSkillsPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/skills/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/skills/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

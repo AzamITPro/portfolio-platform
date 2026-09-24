@@ -82,8 +82,8 @@ export default function AdminCertificatesPage() {
 
     try {
       const [certRes, mediaRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/admin/certificates", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/media?file_type=image", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/certificates", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media?file_type=image", { headers, credentials: "include" }),
       ]);
 
       const certData = await certRes.json();
@@ -147,8 +147,8 @@ export default function AdminCertificatesPage() {
 
     const token = getAuthToken();
     const url = editingCert
-      ? `http://127.0.0.1:8000/api/v1/admin/certificates/${editingCert.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/certificates";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/certificates/${editingCert.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/certificates";
     const method = editingCert ? "PUT" : "POST";
 
     const payload = {
@@ -192,7 +192,7 @@ export default function AdminCertificatesPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/certificates/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/certificates/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

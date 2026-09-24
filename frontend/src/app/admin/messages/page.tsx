@@ -45,7 +45,7 @@ export default function AdminMessagesPage() {
     setLoading(true);
     try {
       const token = getAuthToken();
-      const res = await fetch("http://127.0.0.1:8000/api/v1/admin/messages", {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/messages", {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -75,7 +75,7 @@ export default function AdminMessagesPage() {
   const updateStatus = async (id: number, newStatus: string) => {
     try {
       const token = getAuthToken();
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/messages/${id}/status`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/messages/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export default function AdminMessagesPage() {
 
     try {
       const token = getAuthToken();
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/messages/${selectedMsg.id}/reply`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/messages/${selectedMsg.id}/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export default function AdminMessagesPage() {
 
     try {
       const token = getAuthToken();
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/messages/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/messages/${id}`, {
         method: "DELETE",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

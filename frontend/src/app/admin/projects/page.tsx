@@ -118,9 +118,9 @@ export default function AdminProjectsPage() {
 
     try {
       const [projRes, skillsRes, mediaRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/admin/projects", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/skills", { headers, credentials: "include" }),
-        fetch("http://127.0.0.1:8000/api/v1/admin/media", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/projects", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/skills", { headers, credentials: "include" }),
+        fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media", { headers, credentials: "include" }),
       ]);
 
       const projData = await projRes.json();
@@ -257,8 +257,8 @@ export default function AdminProjectsPage() {
 
     const token = getAuthToken();
     const url = editingProject
-      ? `http://127.0.0.1:8000/api/v1/admin/projects/${editingProject.id}`
-      : "http://127.0.0.1:8000/api/v1/admin/projects";
+      ? `https://portfolio-backend-kofh.onrender.com/api/v1/admin/projects/${editingProject.id}`
+      : "https://portfolio-backend-kofh.onrender.com/api/v1/admin/projects";
     const method = editingProject ? "PUT" : "POST";
 
     try {
@@ -295,7 +295,7 @@ export default function AdminProjectsPage() {
 
     const token = getAuthToken();
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/projects/${id}`, {
+      const res = await fetch(`https://portfolio-backend-kofh.onrender.com/api/v1/admin/projects/${id}`, {
         method: "DELETE",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",

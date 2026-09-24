@@ -118,7 +118,7 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="http://127.0.0.1:8000/docs"
+            href="https://portfolio-backend-kofh.onrender.com/docs"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium bg-zinc-900 border border-zinc-700 text-zinc-200 hover:text-white transition-colors"

@@ -10,7 +10,7 @@ export function Footer() {
   const [tagline, setTagline] = useState("Engineered with Next.js, FastAPI & PostgreSQL.");
 
  useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1";
     fetch(`${apiUrl}/public/settings`)
       .then((res) => res.json())
       .then((data) => {
