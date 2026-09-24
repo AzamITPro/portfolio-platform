@@ -32,8 +32,9 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [announcement, setAnnouncement] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/v1/public/settings")
+useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+    fetch(`${apiUrl}/public/settings`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data?.announcement_banner) {

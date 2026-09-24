@@ -100,17 +100,17 @@ export function Hero({ profile }: HeroProps) {
                   {t.hero.contactMe}
                 </Button>
               </a>
-              <a
-                href="http://127.0.0.1:8000/api/v1/public/documents/cv/download"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent("cv_download", "document", "cv")}
-              >
-                <Button variant="outline" size="lg" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  {t.hero.downloadCv}
-                </Button>
-              </a>
+             <a
+              href={`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"}/public/documents/cv/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent("cv_download", "document", "cv")}
+            >
+              <Button variant="outline" size="lg" className="gap-2">
+                <FileText className="w-4 h-4" />
+                {t.hero.downloadCv}
+              </Button>
+            </a>
               {profile.social_links.map((link) => (
                 <a
                   key={link.id}
