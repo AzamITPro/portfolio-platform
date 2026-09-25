@@ -57,3 +57,36 @@ def delete_media_file(
     """Permanently delete a media asset from disk and database."""
     admin_media_service.delete_media(db, media_id)
     return APIResponse(message="Media item deleted successfully", data=None)
+
+    from pydantic import BaseModel, HttpUrl
+
+class CloudAssetRegister(BaseModel):
+    url: str
+    original_name: str
+    file_type: str = "image"  # image, video, document
+    alt_text: Optional[str] = None
+
+
+@router.post("/register-cloud-url", response_model=APIResponse[MediaOut], status_code=status.HTTP_201_CREATED)
+def register_cloud_asset(
+    payload: CloudAssetRegister,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """Register an asset uploaded to Supabase Storage or external CDN directly into PostgreSQL."""
+    import uuid
+    new_media = Media(
+        file_name=payload.original_name,
+        original_name=payload.original_name,
+        file_type=payload.file_type,
+        mime_type="image/jpeg" if payload.file_type == "image" else ("video/mp4" if payload.file_type == "video" else "application/pdf"),
+        file_size=1024 * 300,  # estimated metadata
+        storage_key=f"cloud_{uuid.uuid4().hex[:12]}",
+        url=payload.url.strip(),
+        alt_text=payload.alt_text or payload.original_name,
+        uploaded_by=admin.id,
+    )
+    db.add(new_media)
+    db.commit()
+    db.refresh(new_media)
+    return APIResponse(message="Cloud asset registered successfully!", data=new_media)

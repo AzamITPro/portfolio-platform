@@ -16,6 +16,8 @@ import {
   Loader2,
   X,
   FileUp,
+  Cloud,
+  Save,
 } from "lucide-react";
 
 interface MediaItem {
@@ -46,11 +48,21 @@ export default function AdminMediaPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  // Upload Modal State
+  // Upload Local Modal State
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [altText, setAltText] = useState("");
   const [uploading, setUploading] = useState(false);
+
+  // Cloud URL Modal State
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
+  const [cloudForm, setCloudForm] = useState({
+    url: "",
+    original_name: "",
+    file_type: "image",
+    alt_text: "",
+  });
+  const [registeringCloud, setRegisteringCloud] = useState(false);
 
   const loadMedia = useCallback(async () => {
     setLoading(true);
@@ -88,16 +100,12 @@ export default function AdminMediaPage() {
     const token = getAuthToken();
     const formData = new FormData();
     formData.append("file", selectedFile);
-    if (altText.trim()) {
-      formData.append("alt_text", altText.trim());
-    }
+    if (altText.trim()) formData.append("alt_text", altText.trim());
 
     try {
       const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media/upload", {
         method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData,
         credentials: "include",
       });
@@ -109,18 +117,50 @@ export default function AdminMediaPage() {
         setAltText("");
         loadMedia();
       } else {
-        alert(data.error?.message || "Failed to upload asset.");
+        alert(data.error?.message || "Upload failed.");
       }
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Network error during file upload.");
     } finally {
       setUploading(false);
     }
   };
 
+  const handleRegisterCloudAsset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cloudForm.url.trim() || !cloudForm.original_name.trim()) return;
+
+    setRegisteringCloud(true);
+    const token = getAuthToken();
+
+    try {
+      const res = await fetch("https://portfolio-backend-kofh.onrender.com/api/v1/admin/media/register-cloud-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(cloudForm),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setIsCloudModalOpen(false);
+        setCloudForm({ url: "", original_name: "", file_type: "image", alt_text: "" });
+        loadMedia();
+      } else {
+        alert(data.error?.message || "Failed to register cloud asset.");
+      }
+    } catch (err) {
+      console.error("Register cloud error:", err);
+    } finally {
+      setRegisteringCloud(false);
+    }
+  };
+
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Are you sure you want to permanently delete "${name}" from disk and database?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete "${name}"?`)) return;
 
     const token = getAuthToken();
     try {
@@ -161,22 +201,28 @@ export default function AdminMediaPage() {
             <span>Digital Asset Library (Media CMS)</span>
           </h1>
           <p className="text-xs text-zinc-400 pt-1">
-            Central repository for images, project screenshots, and PDF documents with UUID storage keys.
+            Central repository for images, video demos, and PDF documents hosted on Supabase Storage.
           </p>
         </div>
-        <Button onClick={() => setIsUploadOpen(true)} size="sm" className="gap-2 text-xs self-start sm:self-auto">
-          <Upload className="w-4 h-4" />
-          Upload New Asset
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button onClick={() => setIsCloudModalOpen(true)} size="sm" variant="outline" className="gap-2 text-xs">
+            <Cloud className="w-4 h-4 text-emerald-400" />
+            + Register Supabase Asset
+          </Button>
+          <Button onClick={() => setIsUploadOpen(true)} size="sm" className="gap-2 text-xs">
+            <Upload className="w-4 h-4" />
+            Direct Upload
+          </Button>
+        </div>
       </div>
 
-      {/* Controls: Search and Filter Tabs */}
+      {/* Controls */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Filter Type */}
         <div className="flex items-center gap-1.5 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800 w-fit">
           {[
             { id: "all", label: "All Assets" },
             { id: "image", label: "Images" },
+            { id: "video", label: "Videos" },
             { id: "document", label: "Documents (PDF)" },
           ].map((tab) => (
             <button
@@ -193,7 +239,6 @@ export default function AdminMediaPage() {
           ))}
         </div>
 
-        {/* Search */}
         <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
           <input
@@ -217,7 +262,7 @@ export default function AdminMediaPage() {
           <ImageIcon className="w-8 h-8 text-zinc-600 mx-auto" />
           <h3 className="text-sm font-semibold text-zinc-300">No Media Files Found</h3>
           <p className="text-xs text-zinc-500">
-            {searchTerm ? "No assets match your search." : "Click Upload New Asset to store your first file."}
+            Click &quot;+ Register Supabase Asset&quot; to link your permanent cloud files.
           </p>
         </div>
       ) : (
@@ -227,7 +272,7 @@ export default function AdminMediaPage() {
               key={item.id}
               className="group rounded-2xl bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700 overflow-hidden flex flex-col justify-between transition-all hover:shadow-xl hover:shadow-blue-500/5"
             >
-              {/* Thumbnail / Preview Container */}
+              {/* Thumbnail */}
               <div className="relative aspect-video bg-zinc-950 flex items-center justify-center border-b border-zinc-800/80 overflow-hidden">
                 {item.file_type === "image" ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -236,6 +281,11 @@ export default function AdminMediaPage() {
                     alt={item.alt_text || item.original_name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                ) : item.file_type === "video" ? (
+                  <div className="w-full h-full bg-zinc-950 flex flex-col items-center justify-center text-zinc-400 gap-1">
+                    <span className="text-xl">▶</span>
+                    <span className="text-[10px] font-mono">Video Demo</span>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-zinc-500">
                     <FileText className="w-10 h-10 text-amber-400/80" />
@@ -252,7 +302,7 @@ export default function AdminMediaPage() {
                 </div>
               </div>
 
-              {/* Asset Meta Info */}
+              {/* Info */}
               <div className="p-4 space-y-2 text-xs">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-white truncate max-w-[150px]" title={item.original_name}>
@@ -263,25 +313,17 @@ export default function AdminMediaPage() {
                   </Badge>
                 </div>
 
-                {item.width && item.height && (
-                  <div className="text-[10px] font-mono text-zinc-500">
-                    Dimensions: {item.width} × {item.height} px
-                  </div>
+                {item.url.includes("supabase.co") && (
+                  <span className="inline-block text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    ☁️ Supabase S3
+                  </span>
                 )}
 
-                {item.alt_text && (
-                  <p className="text-[11px] text-zinc-400 truncate italic">
-                    Alt: &quot;{item.alt_text}&quot;
-                  </p>
-                )}
-
-                {/* Actions Bar */}
                 <div className="flex items-center justify-between pt-3 border-t border-zinc-800/80">
                   <button
                     type="button"
                     onClick={() => copyUrlToClipboard(item.id, item.url)}
                     className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors"
-                    title="Copy direct URL"
                   >
                     {copiedId === item.id ? (
                       <>
@@ -291,7 +333,7 @@ export default function AdminMediaPage() {
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Link</span>
+                        <span>Copy URL</span>
                       </>
                     )}
                   </button>
@@ -301,7 +343,7 @@ export default function AdminMediaPage() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+                      className="p-1.5 text-zinc-400 hover:text-white"
                       title="Open full asset"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -309,7 +351,7 @@ export default function AdminMediaPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(item.id, item.original_name)}
-                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg"
                       title="Delete asset"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -322,55 +364,122 @@ export default function AdminMediaPage() {
         </div>
       )}
 
-      {/* Upload Asset Modal */}
+      {/* Modal: Register Supabase Cloud Asset */}
+      {isCloudModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-emerald-400" />
+                <span>Register Supabase Storage Asset</span>
+              </h3>
+              <button onClick={() => setIsCloudModalOpen(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterCloudAsset} className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-zinc-300">Public Supabase Asset URL *</label>
+                <input
+                  type="url"
+                  required
+                  value={cloudForm.url}
+                  onChange={(e) => setCloudForm({ ...cloudForm, url: e.target.value })}
+                  placeholder="https://jqkfwrsbqvaadohvrbdb.supabase.co/storage/v1/object/public/media/..."
+                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none focus:border-blue-500 font-mono text-[11px]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-zinc-300">Asset Label / File Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={cloudForm.original_name}
+                  onChange={(e) => setCloudForm({ ...cloudForm, original_name: e.target.value })}
+                  placeholder="Official Portrait Photo / Project Demo Video"
+                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-zinc-300">Asset Category Type</label>
+                <select
+                  value={cloudForm.file_type}
+                  onChange={(e) => setCloudForm({ ...cloudForm, file_type: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none focus:border-blue-500"
+                >
+                  <option value="image">Image (Profile, Cover, Screenshots)</option>
+                  <option value="video">Video (Project Demo &lt; 1 min)</option>
+                  <option value="document">Document (PDF Resume / Certificate)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-zinc-300">Alt Text (Accessibility & SEO)</label>
+                <input
+                  type="text"
+                  value={cloudForm.alt_text}
+                  onChange={(e) => setCloudForm({ ...cloudForm, alt_text: e.target.value })}
+                  placeholder="Azzam AL-JARMOUZI Software Developer"
+                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-800">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setIsCloudModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" size="sm" disabled={registeringCloud} className="gap-1.5">
+                  {registeringCloud ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  Register Asset
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Direct Upload */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 sm:p-8 space-y-5">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <FileUp className="w-4 h-4 text-blue-500" />
-                <span>Upload New Digital Asset</span>
+                <span>Direct Upload</span>
               </h3>
               <button onClick={() => setIsUploadOpen(false)} className="text-zinc-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleUpload} className="space-y-4 text-xs">
-              {/* Dropzone Container */}
+            <form onSubmit={handleUpload} className="space-y-3 text-xs">
               <label className="border-2 border-dashed border-zinc-800 hover:border-zinc-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 text-center cursor-pointer bg-zinc-950/60 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center">
-                  <Upload className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <span className="font-semibold text-white block">
-                    {selectedFile ? selectedFile.name : "Click or browse to choose a file"}
-                  </span>
-                  <span className="text-[10px] text-zinc-500 block">
-                    Supported: PNG, JPG, WEBP, SVG, PDF (Max 10MB)
-                  </span>
-                </div>
+                <Upload className="w-6 h-6 text-blue-400" />
+                <span className="font-semibold text-white block">
+                  {selectedFile ? selectedFile.name : "Select image or PDF to upload"}
+                </span>
                 <input
                   type="file"
                   required
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml,application/pdf"
+                  accept="image/*,video/mp4,application/pdf"
                   className="hidden"
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setSelectedFile(e.target.files[0]);
-                    }
+                    if (e.target.files && e.target.files[0]) setSelectedFile(e.target.files[0]);
                   }}
                 />
               </label>
 
               <div className="space-y-1">
-                <label className="font-semibold text-zinc-300">Alt Text (Accessibility & SEO)</label>
+                <label className="font-semibold text-zinc-300">Alt Text</label>
                 <input
                   type="text"
                   value={altText}
                   onChange={(e) => setAltText(e.target.value)}
-                  placeholder="Descriptive image caption..."
-                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none focus:border-blue-500"
+                  placeholder="Caption..."
+                  className="w-full p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white outline-none"
                 />
               </div>
 
@@ -378,9 +487,9 @@ export default function AdminMediaPage() {
                 <Button type="button" variant="ghost" size="sm" onClick={() => setIsUploadOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" disabled={uploading || !selectedFile} className="gap-2">
+                <Button type="submit" size="sm" disabled={uploading || !selectedFile} className="gap-1.5">
                   {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                  Upload Asset
+                  Upload
                 </Button>
               </div>
             </form>
