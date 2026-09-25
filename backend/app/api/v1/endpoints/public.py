@@ -91,6 +91,9 @@ def get_public_cv(db: Session = Depends(get_db)):
     return APIResponse(message="CV metadata retrieved successfully", data=data)
 
 
+from fastapi.responses import FileResponse, RedirectResponse
+
+
 @router.get("/documents/cv/download")
 def download_public_cv(db: Session = Depends(get_db)):
     """Stream and trigger direct download of the active primary resume PDF."""
@@ -98,15 +101,20 @@ def download_public_cv(db: Session = Depends(get_db)):
     if not doc or not doc.media:
         raise NotFoundException("No active resume document currently available.")
 
-    file_path = UPLOADS_DIR / doc.media.storage_key
-    if not file_path.exists():
-        raise NotFoundException("Resume PDF file not found on storage disk.")
+    # 1. If stored on Supabase Storage S3 or Cloud URL, redirect directly
+    if doc.media.url and (doc.media.url.startswith("http://") or doc.media.url.startswith("https://")):
+        return RedirectResponse(url=doc.media.url, status_code=307)
 
-    return FileResponse(
-        path=str(file_path),
-        filename=doc.title,
-        media_type="application/pdf",
-    )
+    # 2. Local fallback
+    file_path = UPLOADS_DIR / doc.media.storage_key
+    if file_path.exists():
+        return FileResponse(
+            path=str(file_path),
+            filename=doc.title,
+            media_type="application/pdf",
+        )
+
+    raise NotFoundException("Resume PDF file not found.")
 
 
 @router.get("/settings", response_model=APIResponse[Dict[str, str]])
