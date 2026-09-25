@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Profile } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +38,24 @@ function PlatformIcon({ platform, className = "w-4 h-4" }: { platform: string; c
     );
   }
 
+  if (p.includes("telegram")) {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21.5 2L2 9.5L9.5 13L13 21.5L21.5 2Z" />
+        <path d="M9.5 13L21.5 2" />
+      </svg>
+    );
+  }
+
+  if (p.includes("twitter") || p === "x") {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+        <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+      </svg>
+    );
+  }
+
   return <Globe className={className} />;
 }
 
@@ -49,6 +67,11 @@ export function Hero({ profile }: HeroProps) {
   const { lang, t } = useLanguage();
   const [imgError, setImgError] = useState(false);
 
+  // Reset error state if the profile image URL changes
+  useEffect(() => {
+    setImgError(false);
+  }, [profile.profile_image_url]);
+
   const availabilityText =
     lang === "ar" && profile.availability.toLowerCase().includes("available")
       ? t.hero.available
@@ -56,10 +79,9 @@ export function Hero({ profile }: HeroProps) {
 
   // Resolve cloud URL and eliminate localhost mixed content
   const backendBase = (process.env.NEXT_PUBLIC_API_URL || "https://portfolio-backend-kofh.onrender.com/api/v1").replace("/api/v1", "");
-  const resolvedAvatarUrl = profile.profile_image_url
-    ? profile.profile_image_url
-        .replace("http://127.0.0.1:8000", backendBase)
-        .replace("http://localhost:8000", backendBase)
+  const rawUrl = profile.profile_image_url || "";
+  const resolvedAvatarUrl = rawUrl
+    ? rawUrl.replace("http://127.0.0.1:8000", backendBase).replace("http://localhost:8000", backendBase)
     : null;
 
   return (
