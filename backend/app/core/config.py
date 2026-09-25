@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     def sync_database_url(self) -> str:
         """Synchronous connection string for Alembic migrations and standard ORM sessions"""
         return (
-            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
+            f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
             f"{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
